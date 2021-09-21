@@ -23,12 +23,16 @@ public class Main {
         // switch to twitter database
         sparkSession.sqlContext().sql("USE twitter");
 
-        // execute query
-        Dataset<Row> result = sparkSession.sql(Sql.QUERY);
+        // TOP 100 HASHTAG
+        Dataset<Row> top100HashTag = sparkSession.sql(Queries.TOP_100_HASHTAG);
+        top100HashTag.write().csv(args[0] + "/Top100HashTag");
 
-        result.write().csv(args[0] + "/result1");
+        // Find all the distinct users
+        Dataset<Row> all = sparkSession.sql(Queries.ALL);
+        all.select(col("username")).distinct().write().csv(args[0] + "/DistinctUsers");
 
-        // process on top of query result
-        result.select(col("hashtag")).distinct().write().csv(args[0] + "/result2");
+        // Create table and put user count directly into it
+        sparkSession.sql(Queries.CREATE_TABLE);
+        sparkSession.sql(Queries.TOTAL_USERS);
     }
 }
